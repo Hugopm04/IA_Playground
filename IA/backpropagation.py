@@ -8,7 +8,7 @@ class BackPropagationNetwork():
         self._layers : list[Layer] = []
 
     def add_layer(self, n_neurons : int, n_inputs : int, activation_function : Type[ActivationFunction] = Layer.default_activation_function()) -> None:
-        self.insert_layer(self.size(), n_neurons, n_inputs)
+        self.insert_layer(self.size(), n_neurons, n_inputs, activation_function)
 
     def remove_layer(self, index : int) -> None:
         if (index < len(self._layers) and index >= 0):
@@ -42,29 +42,24 @@ class BackPropagationNetwork():
     def database_train(self, known_inputs : np.ndarray[np.float64], known_outputs : np.ndarray[np.float64], iterations : int):
         for iteration in range(iterations):
             outputs = self._thinking_proccess(known_inputs)
-            
-            outputs.reverse()
-            self._layers.reverse()
-            '''As backpropagation starts with the final outpout we reverse both lists to iterate over them in reversed orther.'''
-            for i in range(self.size()):
-                if i == 0: #Output layer
-                    layer_error = known_outputs - outputs[i]
-                    derivate = self._layers[i]._function.derivate(outputs[i])
-                    layer_delta = layer_error * derivate
-                
-                else:
-                    layer_error = layer_delta.dot(self._layers[i-1].weights.T)
-                    derivate = self._layers[i].function.derivate(outputs[i])
-                    layer_delta = layer_error * derivate
 
-                if i == self.size() - 1: #Input layer
+            '''As backpropagation starts with the final output we reverse both lists to iterate over them in reversed order.'''
+            for i in reversed(range(self.size())):
+                if i == self.size() - 1: #Output layer
+                    layer_error = known_outputs - outputs[i]
+
+                else:
+                    layer_error = layer_delta.dot(self._layers[i+1].weights.T)
+                
+                derivate = self._layers[i].function.derivate(outputs[i])
+                layer_delta = layer_error * derivate
+
+                if i == 0: #Input layer
                     layer_adjustement = known_inputs.T.dot(layer_delta)
                 else:
-                    layer_adjustement = outputs[i+1].T.dot(layer_delta)
+                    layer_adjustement = outputs[i-1].T.dot(layer_delta)
                 
                 self._layers[i].adjust(layer_adjustement)
-            
-            self._layers.reverse() #Returning list to it's original order.
     
     def __str__(self) -> str:
         START_OF_STRING = "Red neuronal: \n"

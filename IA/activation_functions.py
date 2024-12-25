@@ -25,8 +25,7 @@ class sigmoid(ActivationFunction):
 
     @staticmethod
     def derivate(x : Union[float, np_array]) -> Union[float, np_array]:
-        sigmoid_x = sigmoid.compute(x)
-        result = sigmoid_x * (1 - sigmoid_x)
+        result = x * (1 - x)
         return(result)
 
 class relu(ActivationFunction):
@@ -45,4 +44,4 @@ class tanh(ActivationFunction):
     
     @staticmethod
     def derivate(x : Union[float, np_array]) -> Union[float, np_array]:
-        return(1 - np.tanh ** 2)
+        return(1 - x**2)
