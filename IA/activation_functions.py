@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Union, Type
 import numpy as np
 
 np_array = np.ndarray[np.float64]
@@ -45,3 +45,5 @@ class tanh(ActivationFunction):
     @staticmethod
     def derivate(x : Union[float, np_array]) -> Union[float, np_array]:
         return(1 - x**2)
+
+__all__ : list[Type[ActivationFunction]] = [sigmoid, relu, tanh]

@@ -1,11 +1,43 @@
 from .activation_functions import ActivationFunction
 from .neuroal_layer import Layer
-from typing import Type
+from .network import Network
+from typing import Type, Self
 import numpy as np
+import json
+import os
 
-class BackPropagationNetwork():
+
+class BackPropagationNetwork(Network):
+    _FILENAME = "network.json"
+
+    @classmethod
+    def load(cls, dirname : str) -> Self:
+        with open(os.path.join(dirname, BackPropagationNetwork._FILENAME), 'r') as file:
+            data = json.load(file)
+        
+        network = BackPropagationNetwork()
+        for i in range(data["Número de capas"]):
+            network._layers.append(Layer.load(dirname, i))
+        
+        return(network)
+    
     def __init__(self):
         self._layers : list[Layer] = []
+
+    def save(self, dirname : str) -> None:
+        os.makedirs(dirname, exist_ok=True)
+
+        for i, layer in enumerate(self._layers):
+            layer.save(dirname, i)
+        
+        with open(os.path.join(dirname, BackPropagationNetwork._FILENAME), 'w') as file:
+            json.dump(self.to_dict(), file)
+
+    def to_dict(self) -> dict:
+        data = {
+            "Número de capas": self.size()
+        }
+        return data
 
     def add_layer(self, n_neurons : int, n_inputs : int, activation_function : Type[ActivationFunction] = Layer.default_activation_function()) -> None:
         self.insert_layer(self.size(), n_neurons, n_inputs, activation_function)
@@ -73,4 +105,3 @@ class BackPropagationNetwork():
             s += ": " + str(layer) + "\n"
         
         return(s)
-
